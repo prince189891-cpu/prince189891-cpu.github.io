@@ -216,20 +216,22 @@
             startAdSequence(() => generatePdf(text, 'QuickFile_Document'));
         }
 
-        function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    imgData = e.target.result;
-                    const preview = document.getElementById('imagePreview');
-                    preview.style.backgroundImage = `url(${imgData})`;
-                    preview.classList.remove('hidden');
-                    document.getElementById('uploadText').textContent = 'Change Image';
-                };
-                reader.readAsDataURL(file);
-            }
-        }
+ function handleImageUpload(event) {
+    const files = event.target.files;
+    if (files.length > 0) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            imgData = e.target.result;
+            const preview = document.getElementById('imagePreview');
+            preview.style.backgroundImage = `url(${imgData})`;
+            preview.classList.remove('hidden');
+            // यह लाइन बताएगी कि कितनी फोटो चुनी गई हैं
+            document.getElementById('uploadText').textContent = `${files.length} Photos Selected`;
+        };
+        reader.readAsDataURL(files[0]);
+    }
+ }
+         
 async function downloadImagePdf() {
     const fileInput = document.getElementById('imageInput');
     const files = fileInput.files;
