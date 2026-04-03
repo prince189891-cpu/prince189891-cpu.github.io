@@ -70,7 +70,7 @@
                         <i data-lucide="upload" class="w-8 h-8 mb-2 text-white/40 group-hover:text-white transition-colors"></i>
                         <span id="uploadText" class="text-sm font-medium text-white/60 group-hover:text-white transition-colors">Click to upload image</span>
                     </div>
-                    <input type="file" id="imageInput" class="hidden" accept="image/*" onchange="handleImageUpload(event)">
+                    <input type="file" id="imageInput" class="hidden" accept="image/*" onchange="handleImageUpload(event)>
                 </div>
                 <button onclick="downloadImagePdf()" class="w-full mt-4 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold bg-white text-[#0b3d91] hover:bg-white/90 shadow-lg transition-all active:scale-95">
                     <i data-lucide="download" class="w-5 h-5"></i> Convert Image to PDF
@@ -230,25 +230,69 @@
                 reader.readAsDataURL(file);
             }
         }
+async function downloadImagePdf() {
+    const fileInput = document.getElementById('imageInput');
+    const files = fileInput.files;
 
-        function downloadImagePdf() {
-            if (!imgData) return showToast('Please upload an image first!');
+    if (files.length === 0) return showToast('कृपया पहले फोटो चुनें!');
+
+    // लॉजिक: जितनी ज्यादा फोटो, उतने ज्यादा एड्स (हर 3 फोटो पर 1 एड)
+    // कम से कम 2 एड और ज्यादा से ज्यादा 10 एड
+    let adCount = Math.min(Math.max(Math.ceil(files.length / 3), 2), 10);
+    
+    showToast(`${files.length} फोटो के लिए ${adCount} एड्स (15-15 सेकंड) लोड हो रहे हैं...`);
+
+    // एड्स दिखाने का लूप
+    for (let i = 1; i <= adCount; i++) {
+        await new Promise(resolve => {
+            showToast(`एड ${i} चल रहा है (15 सेकंड)...`);
             startAdSequence(() => {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                const img = new Image();
-                img.src = imgData;
-                img.onload = () => {
-                    const pageWidth = doc.internal.pageSize.getWidth();
-                    const pageHeight = doc.internal.pageSize.getHeight();
-                    const ratio = Math.min((pageWidth - 20) / img.width, (pageHeight - 20) / img.height);
-                    const width = img.width * ratio;
-                    const height = img.height * ratio;
-                    doc.addImage(img, 'JPEG', (pageWidth - width) / 2, (pageHeight - height) / 2, width, height);
-                    doc.save('QuickFile_Image.pdf');
-                };
+                // 15 सेकंड का इंतज़ार (ताकि ऐप हैंग न हो और कमाई भी हो)
+                setTimeout(() => {
+                    resolve();
+                }, 15000); 
             });
-        }
+        });
+    }
+
+    // एड्स के बाद PDF बनाने का काम शुरू
+    generateFinalPdf(files);
+}
+
+// यह फंक्शन सारी फोटो को बिना हैंग किए PDF में जोड़ेगा
+async function generateFinalPdf(files) {
+    showToast('PDF तैयार हो रही है, कृपया रुकें...');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    for (let i = 0; i < files.length; i++) {
+        const imgData = await new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(files[i]);
+        });
+
+        const img = new Image();
+        img.src = imgData;
+
+        await new Promise(resolve => {
+            img.onload = () => {
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                if (i > 0) doc.addPage();
+                
+                const ratio = Math.min(pageWidth / img.width, pageHeight / img.height);
+                const width = img.width * ratio;
+                const height = img.height * ratio;
+                
+                doc.addImage(img, 'JPEG', (pageWidth - width) / 2, (pageHeight - height) / 2, width, height);
+                resolve();
+            };
+        });
+    }
+    doc.save('QuickFile_Pro.pdf');
+    showToast('PDF सफलतापूर्वक डाउनलोड हो गई!');
+                             }
 
         function saveAsTxt() {
             const noteText = document.getElementById('noteText').value;
