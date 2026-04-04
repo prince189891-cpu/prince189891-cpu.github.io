@@ -404,17 +404,22 @@ async function generateFinalPdf(files) {
         <i class="fas fa-robot" style="color:white; font-size:24px;"></i>
     </div>
      
-    <div id="chat-box" style="display: none;">
-        <div style="background:#007bff; padding:12px; display:flex; justify-content:space-between; color:white; font-weight:bold;">
-            <span>AI Assistant</span>
-            <i class="fas fa-phone" onclick="startCall()" style="cursor:pointer;"></i>
+    <div id="chat-box" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; z-index: 9999; flex-direction: column;">
+        <div style="background:#007bff; padding:15px; display:flex; justify-content:space-between; align-items:center; color:white; font-weight:bold; font-size: 18px;">
+    <span><i class="fas fa-robot"></i> QuickBot AI</span>
+    <div>
+        <i class="fas fa-phone" onclick="startCall()" style="cursor:pointer; margin-right: 20px;"></i>
+        <i class="fas fa-times" onclick="toggleChat()" style="cursor:pointer; font-size: 22px;"></i>
+    </div>
         </div>
         <div id="logs" style="flex:1; padding:10px; overflow-y:auto; color:white; font-size:14px; background: rgba(0,0,0,0.2);">
             <p><strong>AI:</strong> नमस्ते प्रिंस भाई! मैं आपकी क्या मदद करूँ?</p>
         </div>
-        <div style="padding:10px; display:flex; gap:5px;">
-            <input type="text" id="ai-input" placeholder="Type message..." style="flex:1; padding:8px; border-radius:5px; border:none; outline:none; color: black;">
-            <button onclick="askAI()" style="background:#007bff; border:none; color:white; padding:8px 12px; border-radius:5px; cursor:pointer;"><i class="fas fa-paper-plane"></i></button>
+        <div style="padding: 10px; display: flex; gap: 8px; border-top: 1px solid rgba(255,255,255,0.1); align-items: center;">
+    <input type="text" id="ai-input" placeholder="Type a message..." style="flex: 1; padding: 10px 15px; border-radius: 20px; border: none; outline: none; color: black; font-size: 14px;">
+    <button onclick="askAI()" style="background: #007bff; border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center;">
+        <i class="fas fa-paper-plane"></i>
+    </button>
         </div>
     </div>
 
