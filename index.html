@@ -400,11 +400,11 @@ async function generateFinalPdf(files) {
         Developed by <strong>Prince Kashyap</strong>
     </p>
 
-    <div id="ai-btn" onclick="toggleChat()" onmousedown="dragStart(event)" ontouchstart="dragStart(event)">
+    <div id="ai-btn" onmousedown="dragStart(event)" ontouchstart="dragStart(event)">
         <i class="fas fa-robot" style="color:white; font-size:24px;"></i>
     </div>
      
-    <div id="chat-box">
+    <div id="chat-box" style="display: none;">
         <div style="background:#007bff; padding:12px; display:flex; justify-content:space-between; color:white; font-weight:bold;">
             <span>AI Assistant</span>
             <i class="fas fa-phone" onclick="startCall()" style="cursor:pointer;"></i>
