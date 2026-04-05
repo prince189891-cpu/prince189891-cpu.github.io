@@ -416,8 +416,6 @@ async function askAI() {
         logs.scrollTop = logs.scrollHeight;
     }
 }
-                                        }
-}
 
 function resetTimer() {
     clearTimeout(idleTime);
@@ -454,7 +452,7 @@ function startCall() {
         Developed by <strong>Prince Kashyap</strong>
     </p>
 
-    <div id="ai-btn" onmousedown="dragStart(event)" ontouchstart="dragStart(event)">
+    <div id="ai-btn" onclick="toggleChat()" onmousedown="dragStart(event)" ontouchstart="dragStart(event)">
         <i class="fas fa-robot" style="color:white; font-size:24px;"></i>
     </div>
      
