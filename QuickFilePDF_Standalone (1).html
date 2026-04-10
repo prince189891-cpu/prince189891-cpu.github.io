@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickFile PDF - Free Professional PDF Creator & Converter</title>
+    <meta name="description" content="QuickFile PDF is a free, secure, and fast tool to create PDFs from text, convert images to PDF, and take quick notes. 100% private browser-based processing.">
+    <meta name="keywords" content="PDF creator, image to pdf, text to pdf, free pdf tool, secure pdf converter, quick notes to pdf, online pdf maker">
+    <meta name="author" content="Prince Kashyap">
+    
+    <!-- Google AdSense Meta Tag -->
+    <meta name="google-adsense-account" content="ca-pub-3489099294423475">
+    <!-- Google AdSense Script -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3489099294423475" crossorigin="anonymous"></script>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel Standalone -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- jsPDF CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #051937;
+        }
+
+        .bg-app-gradient {
+            background: linear-gradient(to bottom right, #0b3d91, #0a2e6b, #051937);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-hover:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loader-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #051937; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        const translations = {
+            en: {
+                statusBar: "Free PDF Creator",
+                tagline: "Create, convert, and craft your documents",
+                textToPdf: "Text to PDF",
+                textPlaceholder: "Paste or write your text here...",
+                createDownload: "Create & Download PDF",
+                imageToPdf: "Image to PDF",
+                uploadImages: "Click to upload images",
+                convertImage: "Convert Image to PDF",
+                quickNotes: "Quick Notes",
+                filename: "Filename (optional)",
+                notePlaceholder: "Write your note here...",
+                saveTxt: "Save as TXT",
+                savePdf: "Save as PDF",
+                aboutTitle: "About QuickFile PDF",
+                aboutDesc: "Developed by Prince Kashyap. A professional, fast, and secure tool to create, convert, and craft your documents for free.",
+                privacy: "Privacy Policy",
+                contact: "Contact Us",
+                rights: "All Rights Reserved by Prince Kashyap.",
+                watchingAd: "Processing...",
+                adDesc: "Your PDF will be ready in a moment.",
+                pdfSettings: "PDF Settings",
+                langSettings: "Language Settings",
+                fileQuality: "File Quality",
+                pageSize: "Page Size",
+                orientation: "Orientation",
+                saveSettings: "Save Settings",
+                toastSuccess: "PDF Downloaded Successfully!",
+                toastText: "Please enter some text!",
+                toastImage: "Please select images!",
+                toastNote: "Please write a note!",
+                low: "Low",
+                medium: "Medium",
+                high: "High",
+                portrait: "Portrait",
+                landscape: "Landscape",
+                none: "None (Original)",
+                settingsSaved: "Settings Saved Successfully!",
+                privacyTitle: "Privacy Policy",
+                privacyContent: "At QuickFile PDF, we respect your privacy. All document processing happens locally in your browser. We do not store your documents or images on our servers. Your data remains yours.",
+                termsTitle: "Terms of Service",
+                termsContent: "By using QuickFile PDF, you agree to process your documents locally. We are not responsible for any data loss. The tool is provided 'as is' without warranties.",
+                disclaimerTitle: "Disclaimer",
+                disclaimerContent: "QuickFile PDF is a free tool. We do not guarantee 100% accuracy in PDF conversion. Users are advised to check their documents after conversion.",
+                faqTitle: "Frequently Asked Questions",
+                faq1Q: "Is QuickFile PDF safe to use?",
+                faq1A: "Yes, absolutely. All processing happens in your browser. Your files are never uploaded to any server.",
+                faq2Q: "Can I convert multiple images at once?",
+                faq2A: "Yes, you can select multiple images and convert them into a single PDF document easily.",
+                faq3Q: "Is there a limit on text length?",
+                faq3A: "No, our tool supports unlimited text and automatically adds new pages as needed.",
+                guideTitle: "Guides & Articles",
+                guide1Title: "How to Create a Professional PDF",
+                guide1Desc: "Learn the best practices for creating high-quality PDF documents from text and images.",
+                guide2Title: "Why Local Processing Matters",
+                guide2Desc: "Discover why processing your sensitive documents in the browser is safer than cloud uploads.",
+                howToTitle: "How to Use QuickFile PDF",
+                step1: "Choose your tool: Text to PDF, Image to PDF, or Quick Notes.",
+                step2: "Enter your content or upload your images.",
+                step3: "Adjust settings like page size and orientation if needed.",
+                step4: "Click Download and your PDF will be ready instantly!",
+                navHome: "Home",
+                navGuides: "Guides",
+                navFAQ: "FAQ",
+                navAbout: "About"
+            },
+            hi: {
+                statusBar: "मुफ्त PDF क्रिएटर",
+                tagline: "अपने दस्तावेज़ बनाएं, बदलें और तैयार करें",
+                textToPdf: "टेक्स्ट से PDF",
+                textPlaceholder: "अपना टेक्स्ट यहाँ पेस्ट करें या लिखें...",
+                createDownload: "PDF बनाएं और डाउनलोड करें",
+                imageToPdf: "इमेज से PDF",
+                uploadImages: "इमेज अपलोड करने के लिए क्लिक करें",
+                convertImage: "इमेज को PDF में बदलें",
+                quickNotes: "त्वरित नोट्स",
+                filename: "फाइल का नाम (वैकल्पिक)",
+                notePlaceholder: "अपना नोट यहाँ लिखें...",
+                saveTxt: "TXT के रूप में सहेजें",
+                savePdf: "PDF के रूप में सहेजें",
+                aboutTitle: "QuickFile PDF के बारे में",
+                aboutDesc: "प्रिंस कश्यप द्वारा विकसित। मुफ्त में आपके दस्तावेज़ बनाने, बदलने और तैयार करने के लिए एक पेशेवर, तेज़ और सुरक्षित उपकरण।",
+                privacy: "गोपनीयता नीति",
+                contact: "संपर्क करें",
+                rights: "प्रिंस कश्यप द्वारा सर्वाधिकार सुरक्षित।",
+                watchingAd: "प्रक्रिया जारी है...",
+                adDesc: "आपकी PDF कुछ ही क्षणों में तैयार हो जाएगी।",
+                pdfSettings: "PDF सेटिंग्स",
+                langSettings: "भाषा सेटिंग्स",
+                fileQuality: "फाइल क्वालिटी",
+                pageSize: "पेज साइज",
+                orientation: "ओरिएंटेशन",
+                saveSettings: "सेटिंग्स सहेजें",
+                toastSuccess: "PDF सफलतापूर्वक डाउनलोड हो गई!",
+                toastText: "कृपया कुछ टेक्स्ट लिखें!",
+                toastImage: "कृपया इमेज चुनें!",
+                toastNote: "कृपया नोट लिखें!",
+                low: "कम",
+                medium: "मध्यम",
+                high: "उच्च",
+                portrait: "पोर्ट्रेट",
+                landscape: "लैंडस्केप",
+                none: "कोई नहीं (मूल)",
+                settingsSaved: "सेटिंग्स सफलतापूर्वक सहेजी गईं!",
+                privacyTitle: "गोपनीयता नीति",
+                privacyContent: "QuickFile PDF में, हम आपकी गोपनीयता का सम्मान करते हैं। सभी दस्तावेज़ संसाधन आपके ब्राउज़र में स्थानीय रूप से होते हैं। हम आपके दस्तावेज़ों या छवियों को अपने सर्वर पर संग्रहीत नहीं करते हैं। आपका डेटा आपका ही रहता है।",
+                termsTitle: "सेवा की शर्तें",
+                termsContent: "QuickFile PDF का उपयोग करके, आप अपने दस्तावेज़ों को स्थानीय रूप से संसाधित करने के लिए सहमत हैं। हम किसी भी डेटा हानि के लिए ज़िम्मेदार नहीं हैं।",
+                disclaimerTitle: "अस्वीकरण",
+                disclaimerContent: "QuickFile PDF एक मुफ्त उपकरण है। हम PDF रूपांतरण में 100% सटीकता की गारंटी नहीं देते हैं।",
+                faqTitle: "अक्सर पूछे जाने वाले प्रश्न",
+                faq1Q: "क्या QuickFile PDF सुरक्षित है?",
+                faq1A: "हाँ, बिल्कुल। सभी प्रोसेसिंग आपके ब्राउज़र में होती है। आपकी फाइलें कभी किसी सर्वर पर अपलोड नहीं की जाती हैं।",
+                faq2Q: "क्या मैं एक साथ कई इमेज बदल सकता हूँ?",
+                faq2A: "हाँ, आप कई इमेज चुन सकते हैं और उन्हें आसानी से एक ही PDF दस्तावेज़ में बदल सकते हैं।",
+                faq3Q: "क्या टेक्स्ट की लंबाई पर कोई सीमा है?",
+                faq3A: "नहीं, हमारा टूल असीमित टेक्स्ट का समर्थन करता है और आवश्यकतानुसार स्वचालित रूप से नए पेज जोड़ता है।",
+                guideTitle: "गाइड और लेख",
+                guide1Title: "प्रोफेशनल PDF कैसे बनाएं",
+                guide1Desc: "टेक्स्ट और इमेज से उच्च गुणवत्ता वाले PDF दस्तावेज़ बनाने के सर्वोत्तम तरीके जानें।",
+                guide2Title: "लोकल प्रोसेसिंग क्यों महत्वपूर्ण है",
+                guide2Desc: "जानें कि क्लाउड अपलोड की तुलना में ब्राउज़र में अपने संवेदनशील दस्तावेज़ों को संसाधित करना सुरक्षित क्यों है।",
+                howToTitle: "QuickFile PDF का उपयोग कैसे करें",
+                step1: "अपना टूल चुनें: टेक्स्ट से PDF, इमेज से PDF, या त्वरित नोट्स।",
+                step2: "अपनी सामग्री दर्ज करें या अपनी इमेज अपलोड करें।",
+                step3: "यदि आवश्यक हो तो पेज साइज और ओरिएंटेशन जैसी सेटिंग्स समायोजित करें।",
+                step4: "डाउनलोड पर क्लिक करें और आपकी PDF तुरंत तैयार हो जाएगी!",
+                navHome: "होम",
+                navGuides: "गाइड",
+                navFAQ: "FAQ",
+                navAbout: "हमारे बारे में"
+            }
+        };
+
+        function App() {
+            const [lang, setLang] = useState('en');
+            const [settings, setSettings] = useState({ quality: 'medium', pageSize: 'a4', orientation: 'p' });
+            const [textInput, setTextInput] = useState('');
+            const [noteInput, setNoteInput] = useState('');
+            const [noteFileName, setNoteFileName] = useState('');
+            const [selectedImages, setSelectedImages] = useState([]);
+            const [imagePreview, setImagePreview] = useState(null);
+            const [showSettings, setShowSettings] = useState(false);
+            const [showLang, setShowLang] = useState(false);
+            const [showPrivacy, setShowPrivacy] = useState(false);
+            const [showTerms, setShowTerms] = useState(false);
+            const [showDisclaimer, setShowDisclaimer] = useState(false);
+            const [activeTab, setActiveTab] = useState('tool');
+            const [isProcessing, setIsProcessing] = useState(false);
+            const [progress, setProgress] = useState(0);
+            const [toast, setToast] = useState({ msg: '', visible: false });
+
+            const imageInputRef = useRef(null);
+            const t = translations[lang];
+
+            useEffect(() => {
+                lucide.createIcons();
+            }, [activeTab, showSettings, showLang, showPrivacy, showTerms, showDisclaimer, isProcessing]);
+
+            const showToast = (msg) => {
+                setToast({ msg, visible: true });
+                setTimeout(() => setToast({ msg: '', visible: false }), 3000);
+            };
+
+            const handleImageSelect = (e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                    const files = Array.from(e.target.files);
+                    setSelectedImages(files);
+                    const reader = new FileReader();
+                    reader.onload = (event) => setImagePreview(event.target.result);
+                    reader.readAsDataURL(files[0]);
+                }
+            };
+
+            const addTextToPDF = (doc, text) => {
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const margin = 15;
+                const maxLineWidth = pageWidth - margin * 2;
+                const lineHeight = 7;
+                const lines = doc.splitTextToSize(text, maxLineWidth);
+                let cursorY = 20;
+                lines.forEach((line) => {
+                    if (cursorY + lineHeight > pageHeight - margin) {
+                        doc.addPage();
+                        cursorY = 20;
+                    }
+                    doc.text(line, margin, cursorY);
+                    cursorY += lineHeight;
+                });
+            };
+
+            const executeDownload = async (type) => {
+                const { jsPDF } = window.jspdf;
+                let doc;
+                if (type === 'image' && settings.pageSize === 'none') {
+                    doc = new jsPDF({ orientation: settings.orientation, unit: 'px', format: [100, 100] });
+                    doc.deletePage(1);
+                } else {
+                    doc = new jsPDF({ orientation: settings.orientation, format: settings.pageSize === 'none' ? 'a4' : settings.pageSize, unit: 'mm' });
+                }
+
+                if (type === 'text' || type === 'notePdf') {
+                    const val = type === 'text' ? textInput : noteInput;
+                    const name = type === 'text' ? 'QuickFile_Document' : (noteFileName || 'Note');
+                    addTextToPDF(doc, val);
+                    doc.save(`${name}.pdf`);
+                } else if (type === 'txt') {
+                    const blob = new Blob([noteInput], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url; a.download = `${noteFileName || 'Note'}.txt`; a.click();
+                    URL.revokeObjectURL(url);
+                } else if (type === 'image') {
+                    for (let i = 0; i < selectedImages.length; i++) {
+                        const imgData = await new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onload = (e) => resolve(e.target.result);
+                            reader.readAsDataURL(selectedImages[i]);
+                        });
+                        if (settings.pageSize === 'none') {
+                            const img = new Image();
+                            await new Promise((resolve) => { img.onload = resolve; img.src = imgData; });
+                            doc.addPage([img.width, img.height], settings.orientation);
+                            doc.addImage(imgData, 'JPEG', 0, 0, img.width, img.height);
+                        } else {
+                            if (i > 0) doc.addPage();
+                            const pageWidth = doc.internal.pageSize.getWidth();
+                            const pageHeight = doc.internal.pageSize.getHeight();
+                            doc.addImage(imgData, 'JPEG', 10, 10, pageWidth - 20, pageHeight - 20);
+                        }
+                    }
+                    doc.save("QuickFile_Images.pdf");
+                }
+                showToast(t.toastSuccess);
+            };
+
+            const handleAction = (type) => {
+                if (type === 'text' && !textInput.trim()) return showToast(t.toastText);
+                if (type === 'image' && selectedImages.length === 0) return showToast(t.toastImage);
+                if ((type === 'notePdf' || type === 'txt') && !noteInput.trim()) return showToast(t.toastNote);
+                setIsProcessing(true); setProgress(0);
+                let currentStep = 0;
+                const timer = setInterval(() => {
+                    currentStep++;
+                    const newProgress = Math.min((currentStep / 40) * 100, 100);
+                    setProgress(newProgress);
+                    if (currentStep >= 40) {
+                        clearInterval(timer);
+                        setTimeout(() => { setIsProcessing(false); executeDownload(type); }, 500);
+                    }
+                }, 50);
+            };
+
+            return (
+                <div className="min-h-screen pb-20 bg-app-gradient text-white">
+                    {/* Navigation */}
+                    <nav className="sticky top-0 z-50 bg-[#051937]/80 backdrop-blur-lg border-b border-white/10 px-6 py-4">
+                        <div className="max-w-4xl mx-auto flex items-center justify-between">
+                            <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('tool')}>
+                                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center border border-white/20">
+                                    <i data-lucide="zap" className="w-5 h-5 text-amber-400"></i>
+                                </div>
+                                <span className="font-bold text-lg tracking-tight">QuickFile</span>
+                            </div>
+                            <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/60">
+                                <button onClick={() => setActiveTab('tool')} className={`hover:text-white transition-colors ${activeTab === 'tool' ? 'text-white' : ''}`}>{t.navHome}</button>
+                                <button onClick={() => setActiveTab('guides')} className={`hover:text-white transition-colors ${activeTab === 'guides' ? 'text-white' : ''}`}>{t.navGuides}</button>
+                                <button onClick={() => setActiveTab('faq')} className={`hover:text-white transition-colors ${activeTab === 'faq' ? 'text-white' : ''}`}>{t.navFAQ}</button>
+                                <button onClick={() => setShowLang(true)} className="flex items-center gap-2 hover:text-white transition-colors">
+                                    <i data-lucide="languages" className="w-4 h-4"></i> {lang.toUpperCase()}
+                                </button>
+                            </div>
+                            <button onClick={() => setShowLang(true)} className="md:hidden p-2 hover:bg-white/10 rounded-full transition-colors">
+                                <i data-lucide="languages" className="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </nav>
+
+                    {/* Status Bar */}
+                    <div className="bg-emerald-500/10 border-b border-emerald-500/20 px-6 py-2 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">
+                        <div className="flex items-center justify-center gap-2">
+                            <i data-lucide="shield-check" className="w-3 h-3"></i>
+                            <span>100% Secure • Local Browser Processing • No Server Uploads</span>
+                        </div>
+                    </div>
+
+                    <div className="max-w-4xl mx-auto px-6 py-12">
+                        {activeTab === 'tool' && (
+                            <div className="fade-in space-y-12">
+                                <header className="text-center mb-12">
+                                    <div className="inline-flex items-center justify-center p-1 bg-white/10 backdrop-blur-xl rounded-3xl mb-6 shadow-2xl border border-white/10">
+                                        <div className="w-24 h-24 rounded-2xl flex items-center justify-center overflow-hidden bg-white/10">
+                                            <img 
+                                                src="logo.png" 
+                                                alt="Logo" 
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    e.target.src = "https://api.dicebear.com/7.x/initials/svg?seed=QP&backgroundColor=051937&fontFamily=Inter&fontWeight=700";
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <h1 className="text-5xl font-black tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">QuickFile PDF</h1>
+                                    <p className="text-white/60 text-xl max-w-lg mx-auto leading-relaxed">{t.tagline}</p>
+                                </header>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-8">
+                                        <section className="glass rounded-3xl p-8 shadow-xl">
+                                            <div className="flex justify-between mb-6">
+                                                <h2 className="text-2xl font-bold flex items-center gap-4"><i data-lucide="type" className="text-emerald-400"></i> {t.textToPdf}</h2>
+                                                <button onClick={() => setShowSettings(true)} className="text-white/40 hover:text-white"><i data-lucide="settings"></i></button>
+                                            </div>
+                                            <textarea value={textInput} onChange={(e) => setTextInput(e.target.value)} className="w-full h-64 bg-white/5 border border-white/10 rounded-2xl p-4 text-white resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/50" placeholder={t.textPlaceholder} />
+                                            <button onClick={() => handleAction('text')} className="w-full mt-6 py-5 bg-white text-[#0b3d91] rounded-2xl font-black text-lg hover:bg-emerald-50 transition-all flex items-center justify-center gap-3"><i data-lucide="download"></i> {t.createDownload}</button>
+                                        </section>
+
+                                        <section className="glass rounded-3xl p-8 shadow-xl">
+                                            <h2 className="text-2xl font-bold flex items-center gap-4 mb-6"><i data-lucide="file-plus" className="text-emerald-400"></i> {t.quickNotes}</h2>
+                                            <input type="text" value={noteFileName} onChange={(e) => setNoteFileName(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 mb-4 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50" placeholder={t.filename} />
+                                            <textarea value={noteInput} onChange={(e) => setNoteInput(e.target.value)} className="w-full h-40 bg-white/5 border border-white/10 rounded-xl p-4 text-white resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/50" placeholder={t.notePlaceholder} />
+                                            <div className="grid grid-cols-2 gap-4 mt-6">
+                                                <button onClick={() => handleAction('txt')} className="py-4 rounded-xl font-bold bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center gap-2"><i data-lucide="file-text"></i> {t.saveTxt}</button>
+                                                <button onClick={() => handleAction('notePdf')} className="py-4 rounded-xl font-bold bg-white text-[#0b3d91] hover:bg-emerald-50 flex items-center justify-center gap-2"><i data-lucide="download"></i> {t.savePdf}</button>
+                                            </div>
+                                        </section>
+                                    </div>
+
+                                    <div className="space-y-8">
+                                        <section className="glass rounded-3xl p-8 shadow-xl">
+                                            <div className="flex justify-between mb-6">
+                                                <h2 className="text-2xl font-bold flex items-center gap-4"><i data-lucide="image" className="text-emerald-400"></i> {t.imageToPdf}</h2>
+                                                <button onClick={() => setShowSettings(true)} className="text-white/40 hover:text-white"><i data-lucide="settings"></i></button>
+                                            </div>
+                                            <div onClick={() => imageInputRef.current?.click()} className="w-full h-80 border-2 border-dashed border-white/10 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 transition-all overflow-hidden relative">
+                                                {imagePreview && <div className="absolute inset-0 bg-cover bg-center opacity-30 blur-sm" style={{ backgroundImage: `url(${imagePreview})` }} />}
+                                                <div className="relative z-10 flex flex-col items-center text-center px-6">
+                                                    <i data-lucide="upload" className="w-12 h-12 text-white/20 mb-4"></i>
+                                                    <span className="text-lg font-bold text-white/60">{selectedImages.length > 0 ? `${selectedImages.length} Images Selected` : t.uploadImages}</span>
+                                                </div>
+                                                <input type="file" ref={imageInputRef} className="hidden" accept="image/*" multiple onChange={handleImageSelect} />
+                                            </div>
+                                            <button onClick={() => handleAction('image')} className="w-full mt-6 py-5 bg-white text-[#0b3d91] rounded-2xl font-black text-lg hover:bg-emerald-50 transition-all flex items-center justify-center gap-3"><i data-lucide="download"></i> {t.convertImage}</button>
+                                        </section>
+
+                                        <section className="glass rounded-3xl p-8 border border-white/10">
+                                            <h3 className="text-xl font-bold mb-6 flex items-center gap-3"><i data-lucide="info" className="text-emerald-400"></i> {t.howToTitle}</h3>
+                                            <div className="space-y-4">
+                                                {[t.step1, t.step2, t.step3, t.step4].map((step, i) => (
+                                                    <div key={i} className="flex gap-4">
+                                                        <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold shrink-0">{i+1}</div>
+                                                        <p className="text-sm text-white/60 leading-relaxed">{step}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </section>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8">
+                                    <div onClick={() => setActiveTab('guides')} className="glass p-8 rounded-3xl glass-hover cursor-pointer">
+                                        <i data-lucide="book-open" className="w-8 h-8 text-emerald-400 mb-4"></i>
+                                        <h3 className="text-xl font-bold mb-2">{t.guideTitle}</h3>
+                                        <p className="text-white/40 text-sm">{t.guide1Desc}</p>
+                                    </div>
+                                    <div onClick={() => setActiveTab('faq')} className="glass p-8 rounded-3xl glass-hover cursor-pointer">
+                                        <i data-lucide="help-circle" className="w-8 h-8 text-emerald-400 mb-4"></i>
+                                        <h3 className="text-xl font-bold mb-2">{t.faqTitle}</h3>
+                                        <p className="text-white/40 text-sm">{t.faq1Q}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'guides' && (
+                            <div className="fade-in space-y-12">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-4xl font-black tracking-tighter">{t.guideTitle}</h2>
+                                    <button onClick={() => setActiveTab('tool')} className="text-emerald-400 font-bold hover:underline">Back to Tool</button>
+                                </div>
+                                <div className="grid grid-cols-1 gap-8">
+                                    <article className="glass p-10 rounded-[2.5rem]">
+                                        <h3 className="text-2xl font-bold mb-4">{t.guide1Title}</h3>
+                                        <p className="text-white/60 leading-relaxed mb-6">{t.guide1Desc}</p>
+                                        <div className="text-white/50 text-sm space-y-4">
+                                            <p>Creating a professional PDF is more than just converting text. It involves choosing the right page size, orientation, and ensuring the content is readable. With QuickFile PDF, we've made this process seamless.</p>
+                                            <p>When using our Text to PDF tool, try to use clear headings and bullet points. Our tool will automatically handle the pagination, ensuring your document looks consistent across all devices.</p>
+                                        </div>
+                                    </article>
+                                    <article className="glass p-10 rounded-[2.5rem]">
+                                        <h3 className="text-2xl font-bold mb-4">{t.guide2Title}</h3>
+                                        <p className="text-white/60 leading-relaxed mb-6">{t.guide2Desc}</p>
+                                        <div className="text-white/50 text-sm space-y-4">
+                                            <p>Most online PDF tools upload your sensitive documents to their servers for processing. This poses a significant privacy risk. QuickFile PDF uses advanced JavaScript libraries to process everything right inside your browser.</p>
+                                            <p>This means your data never leaves your computer. Whether it's a private note or a personal photo, you can trust that your privacy is protected.</p>
+                                        </div>
+                                    </article>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'faq' && (
+                            <div className="fade-in space-y-12">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-4xl font-black tracking-tighter">{t.faqTitle}</h2>
+                                    <button onClick={() => setActiveTab('tool')} className="text-emerald-400 font-bold hover:underline">Back to Tool</button>
+                                </div>
+                                <div className="space-y-6">
+                                    {[ {q: t.faq1Q, a: t.faq1A}, {q: t.faq2Q, a: t.faq2A}, {q: t.faq3Q, a: t.faq3A} ].map((item, i) => (
+                                        <div key={i} className="glass p-8 rounded-3xl">
+                                            <h3 className="text-lg font-bold mb-3 flex items-start gap-3"><span className="text-emerald-400">Q.</span> {item.q}</h3>
+                                            <p className="text-white/50 leading-relaxed pl-8">{item.a}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Footer */}
+                        <footer className="mt-24 pt-12 border-t border-white/10">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-3">
+                                        <i data-lucide="zap" className="w-6 h-6 text-amber-400"></i>
+                                        <span className="font-bold text-xl">QuickFile PDF</span>
+                                    </div>
+                                    <p className="text-white/40 text-sm leading-relaxed">{t.aboutDesc}</p>
+                                </div>
+                                <div className="space-y-4">
+                                    <h4 className="font-bold text-white/80 uppercase tracking-widest text-xs">Quick Links</h4>
+                                    <ul className="space-y-2 text-sm text-white/40">
+                                        <li><button onClick={() => setActiveTab('tool')} className="hover:text-emerald-400 transition-colors">{t.navHome}</button></li>
+                                        <li><button onClick={() => setActiveTab('guides')} className="hover:text-emerald-400 transition-colors">{t.navGuides}</button></li>
+                                        <li><button onClick={() => setActiveTab('faq')} className="hover:text-emerald-400 transition-colors">{t.navFAQ}</button></li>
+                                    </ul>
+                                </div>
+                                <div className="space-y-4">
+                                    <h4 className="font-bold text-white/80 uppercase tracking-widest text-xs">Legal & Contact</h4>
+                                    <ul className="space-y-2 text-sm text-white/40">
+                                        <li><button onClick={() => setShowPrivacy(true)} className="hover:text-emerald-400 transition-colors">{t.privacy}</button></li>
+                                        <li><button onClick={() => setShowTerms(true)} className="hover:text-emerald-400 transition-colors">{t.termsTitle}</button></li>
+                                        <li><button onClick={() => setShowDisclaimer(true)} className="hover:text-emerald-400 transition-colors">{t.disclaimerTitle}</button></li>
+                                        <li><a href="mailto:princebhardwaj9588@gmail.com" className="hover:text-emerald-400 transition-colors flex items-center gap-2"><i data-lucide="mail" className="w-4 h-4"></i> {t.contact}</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div className="text-center text-white/20 text-xs border-t border-white/5 pt-8">
+                                <p>© 2026 QuickFile PDF - {t.rights}</p>
+                            </div>
+                        </footer>
+                    </div>
+
+                    {/* Modals */}
+                    {showSettings && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+                            <div className="glass w-full max-w-md rounded-3xl p-8">
+                                <div className="flex justify-between mb-8">
+                                    <h3 className="text-2xl font-bold">{t.pdfSettings}</h3>
+                                    <button onClick={() => setShowSettings(false)}><i data-lucide="x"></i></button>
+                                </div>
+                                <div className="space-y-6">
+                                    <div>
+                                        <label className="block text-sm mb-2">{t.fileQuality}</label>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {['low', 'medium', 'high'].map(q => (
+                                                <button key={q} onClick={() => setSettings({...settings, quality: q})} className={`py-2 rounded-xl border ${settings.quality === q ? 'bg-emerald-500 border-emerald-400' : 'bg-white/5 border-white/10 text-white/40'}`}>{t[q]}</button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm mb-2">{t.pageSize}</label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {['a4', 'letter', 'legal', 'none'].map(s => (
+                                                <button key={s} onClick={() => setSettings({...settings, pageSize: s})} className={`py-2 rounded-xl border ${settings.pageSize === s ? 'bg-emerald-500 border-emerald-400' : 'bg-white/5 border-white/10 text-white/40'}`}>{s === 'none' ? t.none : s.toUpperCase()}</button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onClick={() => setShowSettings(false)} className="w-full mt-8 py-4 bg-white text-[#0b3d91] rounded-2xl font-bold">{t.saveSettings}</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {showLang && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+                            <div className="glass w-full max-w-md rounded-3xl p-8">
+                                <div className="flex justify-between mb-8">
+                                    <h3 className="text-2xl font-bold">{t.langSettings}</h3>
+                                    <button onClick={() => setShowLang(false)}><i data-lucide="x"></i></button>
+                                </div>
+                                <div className="flex flex-col gap-3">
+                                    <button onClick={() => {setLang('en'); setShowLang(false)}} className={`py-4 rounded-xl border ${lang === 'en' ? 'bg-emerald-500 border-emerald-400' : 'bg-white/5 border-white/10'}`}>English</button>
+                                    <button onClick={() => {setLang('hi'); setShowLang(false)}} className={`py-4 rounded-xl border ${lang === 'hi' ? 'bg-emerald-500 border-emerald-400' : 'bg-white/5 border-white/10'}`}>हिन्दी (Hindi)</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {showPrivacy && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+                            <div className="glass w-full max-w-md rounded-3xl p-8">
+                                <div className="flex justify-between mb-6">
+                                    <h3 className="text-2xl font-bold">{t.privacyTitle}</h3>
+                                    <button onClick={() => setShowPrivacy(false)}><i data-lucide="x"></i></button>
+                                </div>
+                                <p className="text-white/70 leading-relaxed mb-6">{t.privacyContent}</p>
+                                <button onClick={() => setShowPrivacy(false)} className="w-full py-4 bg-white text-[#0b3d91] font-bold rounded-2xl">Close</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {showTerms && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+                            <div className="glass w-full max-w-md rounded-3xl p-8">
+                                <div className="flex justify-between mb-6">
+                                    <h3 className="text-2xl font-bold">{t.termsTitle}</h3>
+                                    <button onClick={() => setShowTerms(false)}><i data-lucide="x"></i></button>
+                                </div>
+                                <p className="text-white/70 leading-relaxed mb-6">{t.termsContent}</p>
+                                <button onClick={() => setShowTerms(false)} className="w-full py-4 bg-white text-[#0b3d91] font-bold rounded-2xl">Close</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {showDisclaimer && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+                            <div className="glass w-full max-w-md rounded-3xl p-8">
+                                <div className="flex justify-between mb-6">
+                                    <h3 className="text-2xl font-bold">{t.disclaimerTitle}</h3>
+                                    <button onClick={() => setShowDisclaimer(false)}><i data-lucide="x"></i></button>
+                                </div>
+                                <p className="text-white/70 leading-relaxed mb-6">{t.disclaimerContent}</p>
+                                <button onClick={() => setShowDisclaimer(false)} className="w-full py-4 bg-white text-[#0b3d91] font-bold rounded-2xl">Close</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {isProcessing && (
+                        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[#051937]/90 backdrop-blur-md">
+                            <div className="text-center w-full max-w-xs">
+                                <div className="loader-spin w-16 h-16 border-4 border-white/10 border-t-emerald-500 rounded-full mx-auto mb-6"></div>
+                                <h3 className="text-2xl font-bold mb-2">{t.watchingAd}</h3>
+                                <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                    <div className="h-full bg-emerald-500 transition-all duration-50" style={{width: `${progress}%`}}></div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {toast.visible && (
+                        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-emerald-500 px-8 py-4 rounded-2xl font-bold shadow-2xl fade-in">
+                            {toast.msg}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
